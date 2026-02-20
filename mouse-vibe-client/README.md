@@ -2,6 +2,41 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## API Configuration
+
+The client uses Vite proxy with same-origin path `/api` by default.
+
+- Browser request: `/api/weatherforecast`
+- Vite dev server proxies to: `http://localhost:8080/weatherforecast`
+
+This avoids cross-origin CORS issues in local dev and Codespaces.
+
+You can still override with `VITE_API_BASE_URL` when needed.
+
+Create or update `.env.development`:
+
+```env
+# Optional override
+# VITE_API_BASE_URL=http://localhost:8080
+```
+
+## Run Client + Server
+
+1. Start API container from `mouse-vibe-server`:
+
+   ```bash
+   docker compose up --build
+   ```
+
+2. Start client from `mouse-vibe-client`:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+3. Open the Vite URL and verify forecast data loads from `/api/weatherforecast`.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
