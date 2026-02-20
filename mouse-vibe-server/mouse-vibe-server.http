@@ -1,0 +1,6 @@
+@mouse_vibe_server_HostAddress = http://localhost:5127
+
+GET {{mouse_vibe_server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
