@@ -9,11 +9,9 @@
 		-moz-osx-font-smoothing: grayscale;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		body {
-			background-color: #020617;
-			color: #f1f5f9;
-		}
+	:root.dark body {
+		background-color: #020617;
+		color: #f1f5f9;
 	}
 
 	button:hover {

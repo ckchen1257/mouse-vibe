@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 type NavbarProps = {
   isSidebarOpen: boolean
@@ -8,7 +9,10 @@ type NavbarProps = {
 
 export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) {
   const { user, authReady, signIn, signOut } = useAuth()
+  const { theme, setTheme } = useTheme()
   const [error, setError] = useState<string | null>(null)
+
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
 
   const handleSignIn = async () => {
     try {
@@ -29,7 +33,7 @@ export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) 
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/80 dark:supports-[backdrop-filter]:bg-slate-900/60">
+    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/60 dark:border-slate-700 dark:bg-slate-900/80 dark:supports-backdrop-filter:bg-slate-900/60">
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <button
@@ -48,8 +52,32 @@ export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) 
           <span className="text-lg font-semibold tracking-tight">Mouse&nbsp;Vibe</span>
         </div>
 
-        {/* Auth controls */}
+        {/* Theme toggle + Auth controls */}
         <div className="flex items-center gap-3">
+          {/* Light / Dark toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+          >
+            {theme === 'light' ? (
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            )}
+          </button>
+
+          <div className="h-5 w-px bg-slate-300 dark:bg-slate-600" />
           {!authReady ? (
             <span className="text-sm text-slate-400">…</span>
           ) : user ? (
