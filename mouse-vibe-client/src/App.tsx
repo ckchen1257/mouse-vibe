@@ -1,44 +1,10 @@
-import { useEffect, useState } from 'react'
-import { weatherForecastUrl } from './api'
+import { useState } from 'react'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar'
-
-type WeatherForecast = {
-  date: string
-  temperatureC: number
-  temperatureF: number
-  summary: string | null
-}
+import WeatherForecastPage from './pages/WeatherForecastPage'
 
 function App() {
-  const [forecasts, setForecasts] = useState<WeatherForecast[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-
-  useEffect(() => {
-    const fetchForecasts = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-
-        const response = await fetch(weatherForecastUrl)
-
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`)
-        }
-
-        const data: WeatherForecast[] = await response.json()
-        setForecasts(data)
-      } catch (fetchError) {
-        const message = fetchError instanceof Error ? fetchError.message : 'Unknown error'
-        setError(`Unable to load forecast: ${message}`)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    void fetchForecasts()
-  }, [])
 
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100">
@@ -55,39 +21,26 @@ function App() {
             className={`p-4 transition-opacity duration-150 ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
             aria-hidden={!isSidebarOpen}
           >
-            <a
-              href="#"
-              className="block rounded-md bg-slate-200 px-3 py-2 text-sm font-medium text-slate-800 dark:bg-slate-700 dark:text-slate-100"
+            <NavLink
+              to="/weatherforecast"
+              className={({ isActive }) =>
+                `block rounded-md px-3 py-2 text-sm font-medium ${
+                  isActive
+                    ? 'bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-100'
+                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
+                }`
+              }
             >
               Forecast
-            </a>
+            </NavLink>
           </nav>
         </aside>
 
         <main className="flex-1 px-6 py-8">
-          <div className="mx-auto max-w-[760px]">
-            <h1 className="text-4xl font-bold leading-tight">Mouse Vibe Forecast</h1>
-            <p className="-mt-2 opacity-80">API: {weatherForecastUrl}</p>
-
-            {isLoading && <p className="text-slate-600 dark:text-slate-300">Loading forecast...</p>}
-
-            {error && <p className="font-semibold text-red-600">{error}</p>}
-
-            {!isLoading && !error && (
-              <ul className="mt-5 grid list-none gap-2 p-0">
-                {forecasts.map((forecast) => (
-                  <li
-                    key={forecast.date}
-                    className="grid grid-cols-1 gap-1 rounded-lg border border-slate-300 bg-white/70 px-4 py-3 sm:flex sm:items-center sm:justify-between sm:gap-4 dark:border-slate-700 dark:bg-slate-900/60"
-                  >
-                    <span className="font-medium">{forecast.date}</span>
-                    <span className="text-slate-700 dark:text-slate-300">{forecast.summary ?? 'N/A'}</span>
-                    <span className="sm:text-right">{forecast.temperatureC}°C / {forecast.temperatureF}°F</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Routes>
+            <Route path="/weatherforecast" element={<WeatherForecastPage />} />
+            <Route path="*" element={<Navigate to="/weatherforecast" replace />} />
+          </Routes>
         </main>
       </div>
     </div>
