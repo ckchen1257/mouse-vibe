@@ -27,9 +27,8 @@ export default function WeatherForecastPage() {
 
         const data: WeatherForecast[] = await response.json()
         setForecasts(data)
-      } catch (fetchError) {
-        const message = fetchError instanceof Error ? fetchError.message : 'Unknown error'
-        setError(`Unable to load forecast: ${message}`)
+      } catch {
+        setError('Unable to load forecast. Please try again later.')
       } finally {
         setIsLoading(false)
       }
@@ -41,7 +40,6 @@ export default function WeatherForecastPage() {
   return (
     <div className="mx-auto max-w-[760px]">
       <h1 className="text-4xl font-bold leading-tight">Mouse Vibe Forecast</h1>
-      <p className="-mt-2 opacity-80">API: {weatherForecastUrl}</p>
 
       {isLoading && <p className="text-slate-600 dark:text-slate-300">Loading forecast...</p>}
 
