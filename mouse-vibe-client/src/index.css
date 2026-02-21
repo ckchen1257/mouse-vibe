@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Switch Tailwind dark: variant from media-query to class-based */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
 	body {
 		margin: 0;
