@@ -18,6 +18,16 @@ Create or update `.env.development`:
 ```env
 # Optional override
 # VITE_API_BASE_URL=http://localhost:8080
+
+# Firebase
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+# Optional
+VITE_FIREBASE_MEASUREMENT_ID=
 ```
 
 ## Run Client + Server
@@ -36,6 +46,38 @@ Create or update `.env.development`:
    ```
 
 3. Open the Vite URL and verify forecast data loads from `/api/weatherforecast`.
+
+## Firebase Google Sign-In
+
+### 1. Enable Google provider
+
+1. Go to [Firebase Console](https://console.firebase.google.com/) → your project → **Authentication → Sign-in method**.
+2. Enable **Google** and save.
+
+### 2. Authorized domains
+
+Add every domain that will host the app to **Authentication → Settings → Authorized domains**:
+
+| Environment | Domain |
+| --- | --- |
+| Local dev | `localhost` (added by default) |
+| Codespaces | `*.app.github.dev` |
+| Production | your custom domain |
+
+> If a domain is missing you'll get `auth/unauthorized-domain` when the popup opens.
+
+### 3. Environment variables
+
+Copy `.env.example` → `.env.development` and fill in your Firebase project values.
+All `VITE_FIREBASE_*` keys are required except `VITE_FIREBASE_MEASUREMENT_ID` (optional).
+
+### Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Popup blocked | Allow popups for the dev URL, or switch to `signInWithRedirect` |
+| `auth/unauthorized-domain` | Add the current domain in Firebase Console → Authorized domains |
+| `auth/configuration-not-found` | Double-check `.env.development` values match your Firebase project |
 
 Currently, two official plugins are available:
 
