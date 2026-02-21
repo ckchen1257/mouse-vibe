@@ -15,4 +15,8 @@
 			color: #f1f5f9;
 		}
 	}
+
+	button:hover {
+		cursor: pointer;
+	}
 }
