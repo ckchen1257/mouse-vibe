@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { weatherForecastUrl } from '../api'
+import { apiFetch, weatherForecastUrl } from '../api'
+import { useAuth } from '../contexts/AuthContext'
 
 type WeatherForecast = {
   date: string
@@ -9,17 +10,20 @@ type WeatherForecast = {
 }
 
 export default function WeatherForecastPage() {
+  const { user, authReady } = useAuth()
   const [forecasts, setForecasts] = useState<WeatherForecast[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!authReady) return
+
     const fetchForecasts = async () => {
       try {
         setIsLoading(true)
         setError(null)
 
-        const response = await fetch(weatherForecastUrl)
+        const response = await apiFetch(weatherForecastUrl)
 
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
@@ -35,7 +39,7 @@ export default function WeatherForecastPage() {
     }
 
     void fetchForecasts()
-  }, [])
+  }, [authReady, user?.uid])
 
   return (
     <div className="mx-auto max-w-[760px]">

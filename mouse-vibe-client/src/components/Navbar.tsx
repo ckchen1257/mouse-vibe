@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithPopup, signOut, type User } from 'firebase/auth'
-import { auth, googleProvider } from '../lib/firebase'
+import { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 
 type NavbarProps = {
   isSidebarOpen: boolean
@@ -8,22 +7,13 @@ type NavbarProps = {
 }
 
 export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, authReady, signIn, signOut } = useAuth()
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser)
-      setLoading(false)
-    })
-    return unsubscribe
-  }, [])
 
   const handleSignIn = async () => {
     try {
       setError(null)
-      await signInWithPopup(auth, googleProvider)
+      await signIn()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     }
@@ -32,7 +22,7 @@ export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) 
   const handleSignOut = async () => {
     try {
       setError(null)
-      await signOut(auth)
+      await signOut()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Logout failed')
     }
@@ -60,7 +50,7 @@ export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) 
 
         {/* Auth controls */}
         <div className="flex items-center gap-3">
-          {loading ? (
+          {!authReady ? (
             <span className="text-sm text-slate-400">…</span>
           ) : user ? (
             <>

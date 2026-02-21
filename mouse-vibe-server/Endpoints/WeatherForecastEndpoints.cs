@@ -10,7 +10,8 @@ public static class WeatherForecastEndpoints
         {
             return weatherForecastService.GetForecasts();
         })
-        .WithName("GetWeatherForecast");
+        .WithName("GetWeatherForecast")
+        .RequireAuthorization();
 
         return endpoints;
     }

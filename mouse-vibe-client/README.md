@@ -47,6 +47,15 @@ VITE_FIREBASE_MEASUREMENT_ID=
 
 3. Open the Vite URL and verify forecast data loads from `/api/weatherforecast`.
 
+## Backend Firebase JWT validation
+
+The API now validates Firebase ID tokens and requires authentication on `/weatherforecast`.
+
+Set server config `Firebase:ProjectId` to the same value as `VITE_FIREBASE_PROJECT_ID`.
+
+- appsettings: `"Firebase": { "ProjectId": "your-project-id" }`
+- environment variable: `Firebase__ProjectId=your-project-id`
+
 ## Firebase Google Sign-In
 
 ### 1. Enable Google provider
