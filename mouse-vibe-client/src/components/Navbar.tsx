@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react'
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from 'firebase/auth'
 import { auth, googleProvider } from '../lib/firebase'
 
-export default function Navbar() {
+type NavbarProps = {
+  isSidebarOpen: boolean
+  onToggleSidebar: () => void
+}
+
+export default function Navbar({ isSidebarOpen, onToggleSidebar }: NavbarProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,9 +40,23 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/80 dark:supports-[backdrop-filter]:bg-slate-900/60">
-      <div className="mx-auto flex h-14 max-w-[760px] items-center justify-between px-6">
-        {/* Brand */}
-        <span className="text-lg font-semibold tracking-tight">Mouse&nbsp;Vibe</span>
+      <div className="flex h-14 items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+
+          <span className="text-lg font-semibold tracking-tight">Mouse&nbsp;Vibe</span>
+        </div>
 
         {/* Auth controls */}
         <div className="flex items-center gap-3">
