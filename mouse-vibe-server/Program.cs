@@ -16,8 +16,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IWeatherForecastService, WeatherForecastService>();
 
 // ── Database ────────────────────────────────────────────────────────
+var connectionString = builder.Configuration.GetConnectionString("AbacDb")!;
+if (connectionString.StartsWith("postgresql://") || connectionString.StartsWith("postgres://"))
+{
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':');
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+}
 builder.Services.AddDbContext<AbacDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AbacDb")));
+    options.UseNpgsql(connectionString));
 
 // ── ABAC Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IPolicyService, PolicyService>();
