@@ -2,6 +2,19 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "start-postgres",
+      "type": "shell",
+      "command": "docker compose up postgres -d && echo 'Waiting for PostgreSQL...' && until docker exec mouse-vibe-server-postgres-1 pg_isready -U postgres > /dev/null 2>&1; do sleep 1; done && echo 'PostgreSQL is ready'",
+      "options": {
+        "cwd": "${workspaceFolder}/mouse-vibe-server"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "revealProblems": "onProblem"
+      }
+    },
+    {
       "label": "build-server",
       "type": "process",
       "command": "dotnet",
@@ -12,7 +25,8 @@
         "/consoleloggerparameters:NoSummary;ForceNoAlign"
       ],
       "problemMatcher": "$msCompile",
-      "group": "build"
+      "group": "build",
+      "dependsOn": "start-postgres"
     },
     {
       "label": "start-client",

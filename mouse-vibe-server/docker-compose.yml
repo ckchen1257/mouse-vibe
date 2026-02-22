@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mouse_vibe
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   mouse-vibe-server:
     build:
       context: .
@@ -6,6 +18,12 @@ services:
     image: mouse-vibe-server:dev
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__AbacDb: Host=postgres;Port=5432;Database=mouse_vibe;Username=postgres;Password=postgres
+
+volumes:
+  pgdata:

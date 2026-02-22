@@ -18,12 +18,14 @@ export default function WeatherForecastPage() {
   useEffect(() => {
     if (!authReady) return
 
+    const controller = new AbortController()
+
     const fetchForecasts = async () => {
       try {
         setIsLoading(true)
         setError(null)
 
-        const response = await apiFetch(weatherForecastUrl)
+        const response = await apiFetch(weatherForecastUrl, { signal: controller.signal })
 
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
@@ -31,14 +33,16 @@ export default function WeatherForecastPage() {
 
         const data: WeatherForecast[] = await response.json()
         setForecasts(data)
-      } catch {
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return
         setError('Unable to load forecast. Please try again later.')
       } finally {
-        setIsLoading(false)
+        if (!controller.signal.aborted) setIsLoading(false)
       }
     }
 
     void fetchForecasts()
+    return () => controller.abort()
   }, [authReady, user?.uid])
 
   return (
