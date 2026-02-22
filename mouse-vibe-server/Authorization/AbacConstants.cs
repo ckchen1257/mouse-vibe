@@ -11,4 +11,5 @@ public static class AbacConstants
 
     // ── Resource types ──────────────────────────────────────────────
     public const string WeatherForecastResource = "WeatherForecast";
+    public const string SpreadsheetResource = "Spreadsheet";
 }

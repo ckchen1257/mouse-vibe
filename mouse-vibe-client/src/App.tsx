@@ -3,6 +3,9 @@ import type { ReactNode } from 'react'
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import WeatherForecastPage from './pages/WeatherForecastPage'
+import GoogleSheetsLayout from './pages/sheets/GoogleSheetsLayout'
+import EditGoogleSheetPage from './pages/sheets/EditGoogleSheetPage'
+import ManageSpreadsheetsPage from './pages/sheets/ManageSpreadsheetsPage'
 import AccessControlPage from './pages/abac/AccessControlPage'
 import { useAdmin } from './contexts/AdminContext'
 
@@ -42,6 +45,9 @@ function App() {
             <NavLink to="/weatherforecast" className={navLinkClass}>
               Forecast
             </NavLink>
+            <NavLink to="/sheets" className={navLinkClass}>
+              Google Sheets
+            </NavLink>
 
             <div className={`transition-opacity duration-150 ${adminLoading || !isAdmin ? 'pointer-events-none opacity-0' : 'opacity-100'}`} aria-hidden={adminLoading || !isAdmin}>
               <div className="my-3 border-t border-slate-200 dark:border-slate-700" />
@@ -55,6 +61,10 @@ function App() {
         <main className="flex-1 overflow-y-auto px-6 py-8">
           <Routes>
             <Route path="/weatherforecast" element={<WeatherForecastPage />} />
+            <Route path="/sheets" element={<GoogleSheetsLayout />}>
+              <Route path="edit" element={<EditGoogleSheetPage />} />
+              <Route path="manage" element={<AdminGuard><ManageSpreadsheetsPage /></AdminGuard>} />
+            </Route>
             <Route path="/abac" element={<AdminGuard><AccessControlPage /></AdminGuard>} />
             <Route path="*" element={<Navigate to="/weatherforecast" replace />} />
           </Routes>

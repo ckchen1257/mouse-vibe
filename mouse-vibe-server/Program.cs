@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IWeatherForecastService, WeatherForecastService>();
+builder.Services.AddSingleton<IGoogleSheetsService, GoogleSheetsService>();
+builder.Services.AddScoped<IRegisteredSpreadsheetService, RegisteredSpreadsheetService>();
 
 // ── Database ────────────────────────────────────────────────────────
 var connectionString = builder.Configuration.GetConnectionString("AbacDb")!;
@@ -114,6 +116,17 @@ using (var scope = app.Services.CreateScope())
         });
         await db.SaveChangesAsync();
     }
+
+    // Seed resource type "Spreadsheet" if not exists
+    if (!await db.ResourceTypes.AnyAsync(r => r.Name == AbacConstants.SpreadsheetResource))
+    {
+        db.ResourceTypes.Add(new mouse_vibe_server.Models.Abac.ResourceType
+        {
+            Name = AbacConstants.SpreadsheetResource,
+            Description = "Google Sheets spreadsheet data"
+        });
+        await db.SaveChangesAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -135,5 +148,6 @@ app.MapPolicySimulatorEndpoints();
 app.MapTeamEndpoints();
 app.MapResourceTypeEndpoints();
 app.MapMeEndpoints();
+app.MapGoogleSheetsEndpoints();
 
 app.Run();

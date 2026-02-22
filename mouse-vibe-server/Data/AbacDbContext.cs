@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using mouse_vibe_server.Models;
 using mouse_vibe_server.Models.Abac;
 
 namespace mouse_vibe_server.Data;
@@ -13,6 +14,7 @@ public sealed class AbacDbContext : DbContext
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
+    public DbSet<RegisteredSpreadsheet> RegisteredSpreadsheets => Set<RegisteredSpreadsheet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -114,6 +116,20 @@ public sealed class AbacDbContext : DbContext
             e.Property(r => r.Description).HasMaxLength(512);
 
             e.HasIndex(r => r.Name).IsUnique();
+        });
+
+        // ── RegisteredSpreadsheet ────────────────────────────────────
+        modelBuilder.Entity<RegisteredSpreadsheet>(e =>
+        {
+            e.ToTable("registered_spreadsheets");
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(s => s.Name).HasMaxLength(256).IsRequired();
+            e.Property(s => s.GoogleSpreadsheetId).HasMaxLength(256).IsRequired();
+            e.Property(s => s.Description).HasMaxLength(1024);
+            e.Property(s => s.CreatedBy).HasMaxLength(256);
+
+            e.HasIndex(s => s.GoogleSpreadsheetId).IsUnique();
         });
     }
 }
