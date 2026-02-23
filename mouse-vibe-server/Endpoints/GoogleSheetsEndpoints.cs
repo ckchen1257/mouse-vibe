@@ -133,6 +133,7 @@ public static class GoogleSheetsEndpoints
             IRegisteredSpreadsheetService regSvc,
             IGoogleSheetsService sheetsSvc,
             IAuthorizationDecisionService abac,
+            IWebhookDispatcher webhookDispatcher,
             HttpContext ctx,
             CancellationToken ct) =>
         {
@@ -149,6 +150,17 @@ public static class GoogleSheetsEndpoints
             if (reg is null) return Results.NotFound();
 
             await sheetsSvc.AppendRowAsync(reg.GoogleSpreadsheetId, sheetName, req.Values.ToList(), ct);
+
+            await webhookDispatcher.DispatchAsync("row.created", new
+            {
+                @event = "row.created",
+                timestamp = DateTime.UtcNow,
+                spreadsheet = new { id, name = reg.Name, googleSpreadsheetId = reg.GoogleSpreadsheetId },
+                worksheet = sheetName,
+                user = userId,
+                data = new { values = req.Values }
+            }, ct);
+
             return Results.Created();
         });
 
@@ -160,6 +172,7 @@ public static class GoogleSheetsEndpoints
             IRegisteredSpreadsheetService regSvc,
             IGoogleSheetsService sheetsSvc,
             IAuthorizationDecisionService abac,
+            IWebhookDispatcher webhookDispatcher,
             HttpContext ctx,
             CancellationToken ct) =>
         {
@@ -175,7 +188,22 @@ public static class GoogleSheetsEndpoints
             var reg = await regSvc.GetByIdAsync(id, ct);
             if (reg is null) return Results.NotFound();
 
+            // Capture before values for webhook
+            var (headers, rows) = await sheetsSvc.GetRowsAsync(reg.GoogleSpreadsheetId, sheetName, ct);
+            var beforeValues = rowIndex >= 0 && rowIndex < rows.Count ? rows[rowIndex].ToList() : [];
+
             await sheetsSvc.UpdateRowAsync(reg.GoogleSpreadsheetId, sheetName, rowIndex, req.Values.ToList(), ct);
+
+            await webhookDispatcher.DispatchAsync("row.updated", new
+            {
+                @event = "row.updated",
+                timestamp = DateTime.UtcNow,
+                spreadsheet = new { id, name = reg.Name, googleSpreadsheetId = reg.GoogleSpreadsheetId },
+                worksheet = sheetName,
+                user = userId,
+                data = new { rowIndex, before = beforeValues, after = req.Values }
+            }, ct);
+
             return Results.NoContent();
         });
 
@@ -186,6 +214,7 @@ public static class GoogleSheetsEndpoints
             IRegisteredSpreadsheetService regSvc,
             IGoogleSheetsService sheetsSvc,
             IAuthorizationDecisionService abac,
+            IWebhookDispatcher webhookDispatcher,
             HttpContext ctx,
             CancellationToken ct) =>
         {
@@ -201,7 +230,22 @@ public static class GoogleSheetsEndpoints
             var reg = await regSvc.GetByIdAsync(id, ct);
             if (reg is null) return Results.NotFound();
 
+            // Capture deleted row data for webhook
+            var (headers, rows) = await sheetsSvc.GetRowsAsync(reg.GoogleSpreadsheetId, sheetName, ct);
+            var deletedValues = rowIndex >= 0 && rowIndex < rows.Count ? rows[rowIndex].ToList() : [];
+
             await sheetsSvc.DeleteRowAsync(reg.GoogleSpreadsheetId, sheetName, rowIndex, ct);
+
+            await webhookDispatcher.DispatchAsync("row.deleted", new
+            {
+                @event = "row.deleted",
+                timestamp = DateTime.UtcNow,
+                spreadsheet = new { id, name = reg.Name, googleSpreadsheetId = reg.GoogleSpreadsheetId },
+                worksheet = sheetName,
+                user = userId,
+                data = new { rowIndex, values = deletedValues }
+            }, ct);
+
             return Results.NoContent();
         });
 

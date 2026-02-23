@@ -6,6 +6,7 @@ import WeatherForecastPage from './pages/WeatherForecastPage'
 import GoogleSheetsLayout from './pages/sheets/GoogleSheetsLayout'
 import EditGoogleSheetPage from './pages/sheets/EditGoogleSheetPage'
 import ManageSpreadsheetsPage from './pages/sheets/ManageSpreadsheetsPage'
+import ManageWebhooksPage from './pages/sheets/ManageWebhooksPage'
 import AccessControlPage from './pages/abac/AccessControlPage'
 import { useAdmin } from './contexts/AdminContext'
 
@@ -64,6 +65,7 @@ function App() {
             <Route path="/sheets" element={<GoogleSheetsLayout />}>
               <Route path="edit" element={<EditGoogleSheetPage />} />
               <Route path="manage" element={<AdminGuard><ManageSpreadsheetsPage /></AdminGuard>} />
+              <Route path="webhooks" element={<ManageWebhooksPage />} />
             </Route>
             <Route path="/abac" element={<AdminGuard><AccessControlPage /></AdminGuard>} />
             <Route path="*" element={<Navigate to="/weatherforecast" replace />} />

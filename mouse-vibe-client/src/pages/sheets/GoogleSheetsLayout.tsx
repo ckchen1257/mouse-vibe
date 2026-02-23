@@ -28,6 +28,9 @@ export default function GoogleSheetsLayout() {
             Manage Registered Spreadsheets
           </NavLink>
         )}
+        <NavLink to="/sheets/webhooks" className={tabClass}>
+          Webhooks
+        </NavLink>
       </div>
 
       <Outlet />

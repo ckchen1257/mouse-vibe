@@ -37,6 +37,15 @@ builder.Services.AddScoped<IPolicySimulatorService, PolicySimulatorService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IResourceTypeService, ResourceTypeService>();
 
+// ── Webhook Services ─────────────────────────────────────────────────
+builder.Services.AddScoped<IWebhookService, WebhookService>();
+builder.Services.AddScoped<IWebhookDispatcher, WebhookDispatcher>();
+builder.Services.AddHttpClient("webhook", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+builder.Services.AddHostedService<WebhookDeliveryBackgroundService>();
+
 var firebaseProjectId = builder.Configuration["Firebase:ProjectId"];
 if (string.IsNullOrWhiteSpace(firebaseProjectId))
 {
@@ -127,6 +136,17 @@ using (var scope = app.Services.CreateScope())
         });
         await db.SaveChangesAsync();
     }
+
+    // Seed resource type "Webhook" if not exists
+    if (!await db.ResourceTypes.AnyAsync(r => r.Name == AbacConstants.WebhookResource))
+    {
+        db.ResourceTypes.Add(new mouse_vibe_server.Models.Abac.ResourceType
+        {
+            Name = AbacConstants.WebhookResource,
+            Description = "Webhook subscriptions"
+        });
+        await db.SaveChangesAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -149,5 +169,6 @@ app.MapTeamEndpoints();
 app.MapResourceTypeEndpoints();
 app.MapMeEndpoints();
 app.MapGoogleSheetsEndpoints();
+app.MapWebhookEndpoints();
 
 app.Run();

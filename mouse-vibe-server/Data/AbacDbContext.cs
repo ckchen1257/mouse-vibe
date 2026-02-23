@@ -15,6 +15,8 @@ public sealed class AbacDbContext : DbContext
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
     public DbSet<RegisteredSpreadsheet> RegisteredSpreadsheets => Set<RegisteredSpreadsheet>();
+    public DbSet<WebhookSubscription> WebhookSubscriptions => Set<WebhookSubscription>();
+    public DbSet<WebhookEvent> WebhookEvents => Set<WebhookEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -130,6 +132,40 @@ public sealed class AbacDbContext : DbContext
             e.Property(s => s.CreatedBy).HasMaxLength(256);
 
             e.HasIndex(s => s.GoogleSpreadsheetId).IsUnique();
+        });
+
+        // ── WebhookSubscription ───────────────────────────────────────
+        modelBuilder.Entity<WebhookSubscription>(e =>
+        {
+            e.ToTable("webhook_subscriptions");
+            e.HasKey(w => w.Id);
+            e.Property(w => w.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(w => w.Url).HasMaxLength(2048).IsRequired();
+            e.Property(w => w.Secret).HasMaxLength(512).IsRequired();
+            e.Property(w => w.Description).HasMaxLength(1024);
+            e.Property(w => w.Events).HasMaxLength(512).IsRequired();
+            e.Property(w => w.CreatedBy).HasMaxLength(256);
+        });
+
+        // ── WebhookEvent ─────────────────────────────────────────────
+        modelBuilder.Entity<WebhookEvent>(e =>
+        {
+            e.ToTable("webhook_events");
+            e.HasKey(ev => ev.Id);
+            e.Property(ev => ev.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(ev => ev.EventType).HasMaxLength(64).IsRequired();
+            e.Property(ev => ev.Payload).HasColumnType("jsonb").IsRequired();
+            e.Property(ev => ev.Status).HasConversion<string>().HasMaxLength(16);
+            e.Property(ev => ev.ResponseBody).HasMaxLength(4096);
+
+            e.HasOne(ev => ev.WebhookSubscription)
+                .WithMany()
+                .HasForeignKey(ev => ev.WebhookSubscriptionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(ev => ev.Status);
+            e.HasIndex(ev => ev.NextRetryAt);
+            e.HasIndex(ev => ev.CreatedAt);
         });
     }
 }
